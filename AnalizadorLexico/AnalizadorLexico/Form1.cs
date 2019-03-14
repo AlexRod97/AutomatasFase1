@@ -19,7 +19,8 @@ namespace AnalizadorLexico
         string error = "";
         InputAnalizer inputAnalizer = new InputAnalizer();
         InfixToPosfix infixToPosfix = new InfixToPosfix(); 
-        BinaryExpressionTree<string> ExpressionTree = new BinaryExpressionTree<string>(); 
+        Dictionary<int, string> regularExpressionMap = new Dictionary<int,string>();
+        BinaryExpressionTree<TreeDictionary> ExpressionTree = new BinaryExpressionTree<TreeDictionary>();
 
         public Form1()
         {
@@ -102,8 +103,22 @@ namespace AnalizadorLexico
         private void button2_Click(object sender, EventArgs e)
         {          
             string expression = textBox1.Text;
-            expression = inputAnalizer.Analize(expression);
-            MessageBox.Show(infixToPosfix.ConvertToPosfix(expression));
+            
+            regularExpressionMap = inputAnalizer.Analize(expression);
+            regularExpressionMap = infixToPosfix.ConvertToPosfix(regularExpressionMap);
+            for (int i = 0; i < regularExpressionMap.Count; i++)
+            {
+                textBox2.Text += regularExpressionMap.Values.ElementAt(i);               
+            }
+
+            for (int i = regularExpressionMap.Count-1; i >= 0; i--)
+            {
+                TreeDictionary element = new TreeDictionary();
+                element.setKey(regularExpressionMap.ElementAt(i).Key);
+                element.setValue(regularExpressionMap.ElementAt(i).Value);
+                ExpressionTree.Insert(element);
+            }
+            MessageBox.Show("Done");                     
         }
     }
 }

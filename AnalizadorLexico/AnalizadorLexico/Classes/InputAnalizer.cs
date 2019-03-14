@@ -7,12 +7,18 @@ using System.Threading.Tasks;
 namespace AnalizadorLexico.Classes
 {
     public class InputAnalizer
-    {  
-        public string Analize(string input)
+    {
+        public Dictionary<int, string> Analize(string input)
         {
             string operators = "|*+?^";
-            string comparators = "|^";
-            StringBuilder result = new StringBuilder(); 
+            string comparators = "|^#";
+            StringBuilder result = new StringBuilder();
+            List<TreeDictionary> regularExpressionMap = new List<TreeDictionary>();
+            Dictionary<int, string> regularExpressionResult = new Dictionary<int, string>();
+
+            int charCount = 0;
+
+            input += "#";
 
             for (int i = 0; i < input.Length; i++)
             {
@@ -36,15 +42,59 @@ namespace AnalizadorLexico.Classes
             result.Append(lastElement);
 
             //Checks if the last element in the expression is a character or operator; if true adds terminal operator
-            if (!operators.Contains(lastElement) && !comparators.Contains(lastElement))
+            //if (!operators.Contains(lastElement) && !comparators.Contains(lastElement))
+            //{
+            //    result.Append(".#");
+            //}
+            //else
+            //{
+            //    result.Append(".#.");
+            //}
+            string expression = result.ToString(); 
+
+            for (int i = 0; i < expression.Length; i++)
             {
-                result.Append("#");
+                TreeDictionary tree = new TreeDictionary();
+                tree.setKey(charCount++);
+                tree.setValue(expression.Substring(i, 1));
+                regularExpressionMap.Add(tree);
             }
-            else
+
+            for (int i = 0; i < expression.Length; i++)
             {
-                result.Append(".#");
+                string valueActual = regularExpressionMap.ElementAt(i).getValue();
+                int keyActual = regularExpressionMap.ElementAt(i).getKey();
+                
+                if(i -1 > 0)
+                {
+                    string valuePrev = regularExpressionMap.ElementAt(i - 1).getValue();
+                    int keyPrev = regularExpressionMap.ElementAt(i - 1).getKey();
+                    bool letter = Char.IsLetterOrDigit(Convert.ToChar(valuePrev));
+
+                    if ((valueActual.Equals("*") && letter) || (valueActual.Equals("+") && letter) || (valueActual.Equals("?") && letter) )
+                    {
+                        regularExpressionMap.ElementAt(i).setKey(keyPrev);
+                        regularExpressionMap.ElementAt(i - 1).setKey(keyActual);
+                    }
+
+                    if(i + 2 == regularExpressionMap.Count)
+                    {
+                        regularExpressionMap.ElementAt(i).setKey(int.MaxValue - 1);
+                    }
+
+                    if(valueActual.Equals("#"))
+                    {
+                        regularExpressionMap.ElementAt(i).setKey(int.MaxValue);
+                    }
+                }
             }
-            return result.ToString(); 
+
+            for (int i = 0; i < regularExpressionMap.Count; i++)
+            {
+                regularExpressionResult.Add(regularExpressionMap.ElementAt(i).getKey(), regularExpressionMap.ElementAt(i).getValue());
+            }
+
+            return regularExpressionResult;
         }
     }
 }

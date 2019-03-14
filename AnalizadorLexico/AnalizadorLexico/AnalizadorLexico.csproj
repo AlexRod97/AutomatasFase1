@@ -50,6 +50,7 @@
     <Compile Include="Classes\InfixToPosfix.cs" />
     <Compile Include="Classes\InputAnalizer.cs" />
     <Compile Include="Classes\Node.cs" />
+    <Compile Include="Classes\TreeDictionary.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
