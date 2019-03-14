@@ -106,6 +106,7 @@ namespace AnalizadorLexico
             
             regularExpressionMap = inputAnalizer.Analize(expression);
             regularExpressionMap = infixToPosfix.ConvertToPosfix(regularExpressionMap);
+
             for (int i = 0; i < regularExpressionMap.Count; i++)
             {
                 textBox2.Text += regularExpressionMap.Values.ElementAt(i);               
@@ -118,6 +119,9 @@ namespace AnalizadorLexico
                 element.setValue(regularExpressionMap.ElementAt(i).Value);
                 ExpressionTree.Insert(element);
             }
+            ExpressionTree.cabeza = ExpressionTree.Nullable(ExpressionTree.cabeza);
+            ExpressionTree.cabeza = ExpressionTree.FirstPos(ExpressionTree.cabeza);
+            ExpressionTree.cabeza = ExpressionTree.LastPos(ExpressionTree.cabeza);
             MessageBox.Show("Done");                     
         }
     }

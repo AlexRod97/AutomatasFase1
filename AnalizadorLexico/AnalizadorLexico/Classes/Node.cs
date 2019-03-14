@@ -15,7 +15,9 @@ namespace AnalizadorLexico.Classes
         public List<int> Last { get; set; }
         public List<int> Follow { get; set; }
         public bool Nullable { get; set; }
+        public int leafNodeValue { get; set; }
         public T Value {get; set;}
+
 
         public Node()
         {

@@ -41,15 +41,6 @@ namespace AnalizadorLexico.Classes
             char lastElement = Convert.ToChar(input.Substring(input.Length - 1, 1));
             result.Append(lastElement);
 
-            //Checks if the last element in the expression is a character or operator; if true adds terminal operator
-            //if (!operators.Contains(lastElement) && !comparators.Contains(lastElement))
-            //{
-            //    result.Append(".#");
-            //}
-            //else
-            //{
-            //    result.Append(".#.");
-            //}
             string expression = result.ToString(); 
 
             for (int i = 0; i < expression.Length; i++)
