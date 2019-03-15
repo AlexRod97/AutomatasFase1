@@ -13,7 +13,14 @@ namespace AnalizadorLexico.Classes
         public Node<T> cabeza;
         private List<Node<T>> inOrden = new List<Node<T>>();
         private List<Node<T>> preOrden = new List<Node<T>>();
-        private List<Node<T>> postOrden = new List<Node<T>>();
+        private List<Node<T>> postOrden = new List<Node<T>>();       
+        private List<List<int>> transiciones = new List<List<int>>(); 
+        private List<FollowDictionary> Follow = new List<FollowDictionary>();
+        private List<Node<T>> sets = new List<Node<T>>();
+        public Dictionary<int,List<string>> automatonTable = new Dictionary<int, List<string>>();
+        public List<List<string>> table = new List<List<string>>();
+        private int LeafCount = 0;
+        
 
         public BinaryExpressionTree()
         {            
@@ -67,12 +74,7 @@ namespace AnalizadorLexico.Classes
                 return true;
             }
             return false;
-        }
-
-        public T Obtain(T llave)
-        {
-            throw new NotImplementedException();
-        }
+        }      
 
         public List<Node<T>> PreOrder()
         {
@@ -126,14 +128,19 @@ namespace AnalizadorLexico.Classes
         {
             Limpiar();
             List<Node<T>> elements = PostOrder(node);
-            int cont = 1;
+            LeafCount = 1;
 
             for (int i = 0; i < elements.Count; i++)
             {
                 if(isLeaf(elements.ElementAt(i)))
                 {
                     elements.ElementAt(i).Nullable = false;
-                    elements.ElementAt(i).leafNodeValue = cont++;
+                    FollowDictionary follow = new FollowDictionary();
+                    follow.setKey(LeafCount);
+                    elements.ElementAt(i).leafNodeValue = LeafCount++;
+                    Follow.Add(follow);
+                    Node<T> value = elements.ElementAt(i);
+                    sets.Add(value);
                 }
             }
 
@@ -280,7 +287,6 @@ namespace AnalizadorLexico.Classes
                     {
                         selected.First = selected.Right.First;
                     }
-
                 }
             }
             return node;
@@ -392,6 +398,162 @@ namespace AnalizadorLexico.Classes
             }
             return node;
         }
+
+        public Node<T> FollowPos(Node<T> node)
+        {
+            Limpiar();
+            List<Node<T>> elements = PostOrder(node);
+
+            for (int i = 1; i < elements.Count; i++)
+            {
+                Node<T> selected = (elements.ElementAt(i));
+                string value = selected.Value.getValue();
+
+                if (value.Equals("."))
+                {
+                    List<int> Lc1 = selected.Left.Last;
+                    List<int> Fc2 = selected.Right.First;
+
+                    foreach  (int item in Lc1)
+                    {
+                        FollowDictionary newElement = new FollowDictionary();
+                        newElement.setKey(item);
+                        for (int j = 0; j < Fc2.Count; j++)
+                        {
+                            int singleValue = Fc2.ElementAt(j);
+                            Follow.ElementAt(newElement.getKey() - 1).addValue(singleValue);
+                        }
+                    }
+                }
+
+                if(value.Equals("*") || value.Equals("+") || value.Equals("?"))
+                {
+                    List<int> Lc1, Fc1;
+
+                    if (selected.Left != null)
+                    {
+                        Lc1 = selected.Left.Last;
+                        Fc1 = selected.Left.First;
+
+                        foreach (int item in Lc1)
+                        {
+                            FollowDictionary newElement = new FollowDictionary();
+                            newElement.setKey(item);
+                            for (int j = 0; j < Fc1.Count; j++)
+                            {
+                                Follow.ElementAt(newElement.getKey() - 1).addValue(Fc1.ElementAt(j));
+                            }
+                        }
+                    }
+                    else if(selected.Right != null)
+                    {
+                        Lc1 = selected.Right.Last;
+                        Fc1 = selected.Right.First;
+
+                        foreach (int item in Lc1)
+                        {
+                            FollowDictionary newElement = new FollowDictionary();
+                            newElement.setKey(item);
+                            for (int j = 0; j < Fc1.Count; j++)
+                            {
+                                Follow.ElementAt(newElement.getKey()).addValue(Fc1.ElementAt(j));
+                            }
+                        }
+                    }
+                }
+            }
+            return node;
+        }
+
+        public List<List<string>> makeAutomaton(Node<T> node)
+        {           
+            transiciones.Add(cabeza.First);
+
+            for (int i = 0; i < transiciones.Count; i++)
+            {
+                List<int> actualTransition = transiciones.ElementAt(i);
+
+                for (int j = 0; j < actualTransition.Count; j++)
+                {
+                    List<Node<T>> nodesLeading = new List<Node<T>>();
+                    int actualTransitionElement = actualTransition.ElementAt(j);
+
+                    for (int k = 0; k < sets.Count; k++)
+                    {
+                        if(sets.ElementAt(k).leafNodeValue.Equals(Follow.ElementAt(actualTransitionElement-1).getKey()))
+                        {                          
+                            List<int> nodeFollow = Follow.ElementAt(actualTransitionElement-1).getValues();                      
+
+                            if (actualTransition.SequenceEqual(nodeFollow) && nodeFollow.Count> 0)
+                            {
+                                int name = getPosition(transiciones, nodeFollow);     
+                            }
+                            else
+                            {
+                                if (!isContained(transiciones, nodeFollow) && nodeFollow.Count > 0)
+                                {
+                                    transiciones.Add(nodeFollow);
+                                }
+                            }
+                        }                       
+                    }
+                }
+            }
+
+            for (int i = 0; i < transiciones.Count; i++)
+            {
+                List<int> internalTransition = transiciones.ElementAt(i);
+                List<string> result = new List<string>();
+                int cont = 0; 
+
+                for (int j = 0; j < sets.Count-1; j++)
+                { 
+                    if (internalTransition.Contains(j + 1))
+                    {
+                        int value = internalTransition.ElementAt(cont++);
+                        List<int> resultFollow = Follow.ElementAt(value - 1).getValues();
+                        int position = getPosition(transiciones, resultFollow);
+                        result.Add(position.ToString());
+                    }
+                    else
+                    {
+                        result.Add("-");
+                    }
+                }
+                table.Add(result);
+            }
+            return table;
+        }
+
+        private int getPosition(List<List<int>> transition, List<int> follow)
+        {
+            int position = -1;
+            for (int i = 0; i < transition.Count; i++)
+            {
+                if(transition.ElementAt(i).SequenceEqual(follow))
+                {
+                    position = i;
+                }                
+            }
+            return position;
+        }
+
+        private bool isContained(List<List<int>> transition, List<int> follow)
+        {
+            bool result = false;
+
+            for (int i = 0; i < transition.Count; i++)
+            {
+                if (transition.ElementAt(i).SequenceEqual(follow))
+                {
+                    result = true;
+                    break;
+                }
+            }
+            return result;
+        }
+
+       
 
         public bool Limpiar()
         {

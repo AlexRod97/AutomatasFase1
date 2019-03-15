@@ -122,6 +122,8 @@ namespace AnalizadorLexico
             ExpressionTree.cabeza = ExpressionTree.Nullable(ExpressionTree.cabeza);
             ExpressionTree.cabeza = ExpressionTree.FirstPos(ExpressionTree.cabeza);
             ExpressionTree.cabeza = ExpressionTree.LastPos(ExpressionTree.cabeza);
+            ExpressionTree.cabeza = ExpressionTree.FollowPos(ExpressionTree.cabeza);
+            ExpressionTree.makeAutomaton(ExpressionTree.cabeza);
             MessageBox.Show("Done");                     
         }
     }

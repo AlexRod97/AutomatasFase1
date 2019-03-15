@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\BinaryExpressionTree.cs" />
+    <Compile Include="Classes\FollowDictionary.cs" />
     <Compile Include="Classes\InfixToPosfix.cs" />
     <Compile Include="Classes\InputAnalizer.cs" />
     <Compile Include="Classes\Node.cs" />
