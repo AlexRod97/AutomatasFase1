@@ -18,20 +18,25 @@ namespace AnalizadorLexico.Classes
 
             for (int i = 0; i < input.Count; i++)
             {
-                string stringSelectedCharacter1 = input.ElementAt(i);
-                char selectedCharacter1 = Convert.ToChar(stringSelectedCharacter1.Substring(0, 1));
-                
+                if(input.ElementAt(i).Length > 0)
+                {
+                    string stringSelectedCharacter1 = input.ElementAt(i);
+                    char selectedCharacter1 = Convert.ToChar(stringSelectedCharacter1.Substring(0, 1));
 
-                if (i + 1 < input.Count)
-                {  
-                    string stringSelectedCharacter2 = input.ElementAt(i + 1);
-                    char selectedCharacter2 = Convert.ToChar(stringSelectedCharacter2.Substring(0, 1));
-                    result.Add(stringSelectedCharacter1);
-                    //Validates if the character is not an operator or parentheses; if true adds a concat operator
-                    if (!selectedCharacter1.Equals('(') && !selectedCharacter2.Equals(')') && !operators.Contains(selectedCharacter2)
-                        && !comparators.Contains(selectedCharacter1))
+                    if (i + 1 < input.Count)
                     {
-                        result.Add(".");
+                        if (input.ElementAt(i + 1).Length > 0)
+                        {
+                            string stringSelectedCharacter2 = input.ElementAt(i + 1);
+                            char selectedCharacter2 = Convert.ToChar(stringSelectedCharacter2.Substring(0, 1));
+                            result.Add(stringSelectedCharacter1);
+                            //Validates if the character is not an operator or parentheses; if true adds a concat operator
+                            if (!selectedCharacter1.Equals('(') && !selectedCharacter2.Equals(')') && !operators.Contains(selectedCharacter2)
+                                && !comparators.Contains(selectedCharacter1))
+                            {
+                                result.Add(".");
+                            }
+                        }
                     }
                 }
             }
@@ -78,13 +83,14 @@ namespace AnalizadorLexico.Classes
                 result.Add(element);
             }
             TreeDictionary elementNum = new TreeDictionary();
-            elementNum.setKey(int.MaxValue-1);
+            elementNum.setKey(int.MaxValue);
             elementNum.setValue("#");
-
             TreeDictionary elementDot = new TreeDictionary();
-            elementDot.setKey(int.MaxValue);
+            elementDot.setKey(int.MaxValue-1);
             elementDot.setValue(".");
 
+            result.Add(elementNum);
+            result.Add(elementDot);
             return result;
         }
     }
