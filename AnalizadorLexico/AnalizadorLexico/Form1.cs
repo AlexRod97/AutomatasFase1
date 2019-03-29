@@ -18,6 +18,7 @@ namespace AnalizadorLexico
         List<string> tokens = new List<string>();
         List<string> actions = new List<string>();
         string error = "";
+        string abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         InputAnalizer inputAnalizer = new InputAnalizer();
         InfixToPosfix infixToPosfix = new InfixToPosfix(); 
         Dictionary<int, string> regularExpressionMap = new Dictionary<int,string>();
@@ -119,8 +120,7 @@ namespace AnalizadorLexico
             ExpressionTree.cabeza = ExpressionTree.FollowPos(ExpressionTree.cabeza);
             ExpressionTree.cabeza = ExpressionTree.makeAutomaton(ExpressionTree.cabeza);
 
-            makeDGV(ExpressionTree.transiciones, ExpressionTree.table, ExpressionTree.setsList); 
-            
+            makeDGV(ExpressionTree.transiciones, ExpressionTree.table, ExpressionTree.setsList);             
         }
 
         public List<string> convertFollow (BinaryExpressionTree<TreeDictionary> expression)
@@ -174,6 +174,46 @@ namespace AnalizadorLexico
                 dataGridView2.Columns[i + 1].HeaderCell.Value = sets.ElementAt(i);
             }
 
+            List<string> temp = new List<string>(); 
+
+            for (int i = 0; i < transiciones.Count; i++)
+            {
+                StringBuilder element = new StringBuilder(); 
+
+                for (int j = 0; j < transiciones.ElementAt(i).Count; j++)
+                {
+                    if(j + 1 < transiciones.ElementAt(i).Count)
+                    {
+                        element.Append(transiciones.ElementAt(i).ElementAt(j));
+                        element.Append(",");
+                    }
+                    else
+                    {
+                        element.Append(transiciones.ElementAt(i).ElementAt(j));                        
+                    }
+                }
+                dataGridView2.Rows[i].Cells[0].Value = element.ToString();
+            }
+
+            for (int i = 0; i < tabla.Count; i++)
+            {
+                for (int j = 0; j < tabla.ElementAt(i).Count; j++)
+                {
+                    char number = Convert.ToChar(tabla.ElementAt(i).ElementAt(j)); 
+
+                    if(Char.IsDigit(number))
+                    {
+                        int value = Convert.ToInt32(number.ToString());
+                        string literal = abc.ElementAt(value - 1).ToString();
+                        dataGridView2.Rows[i].Cells[j + 1].Value = literal;
+                    }
+                    else
+                    {
+                        dataGridView2.Rows[i].Cells[j + 1].Value = tabla.ElementAt(i).ElementAt(j);
+                    }
+                    
+                }
+            }
         }
 
         private string toChain (List<string> cadena)
