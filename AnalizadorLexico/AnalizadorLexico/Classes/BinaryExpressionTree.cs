@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,18 +14,15 @@ namespace AnalizadorLexico.Classes
         public Node<T> cabeza;
         private List<Node<T>> inOrden = new List<Node<T>>();
         private List<Node<T>> preOrden = new List<Node<T>>();
-        private List<Node<T>> postOrden = new List<Node<T>>();       
-        private List<List<int>> transiciones = new List<List<int>>(); 
-        private List<FollowDictionary> Follow = new List<FollowDictionary>();
+        private List<Node<T>> postOrden = new List<Node<T>>();
+        public List<List<int>> transiciones = new List<List<int>>(); 
+        public List<FollowDictionary> Follow = new List<FollowDictionary>();
         private List<Node<T>> sets = new List<Node<T>>();
-        public Dictionary<int,List<string>> automatonTable = new Dictionary<int, List<string>>();
+        public List<string> setsList = new List<string>();
+        public Dictionary<List<List<int>>, List<List<string>>> automatonTable = new Dictionary<List<List<int>>, List<List<string>>>();
         public List<List<string>> table = new List<List<string>>();
         private int LeafCount = 0;
-        
-
-        public BinaryExpressionTree()
-        {            
-        }
+      
         
         public void Insert(T value)
         {         
@@ -132,15 +130,18 @@ namespace AnalizadorLexico.Classes
 
             for (int i = 0; i < elements.Count; i++)
             {
-                if(isLeaf(elements.ElementAt(i)))
+                string actual = elements.ElementAt(i).GetValue().getValue();
+                if (isLeaf(elements.ElementAt(i)))
                 {
                     elements.ElementAt(i).Nullable = false;
                     FollowDictionary follow = new FollowDictionary();
                     follow.setKey(LeafCount);
-                    elements.ElementAt(i).leafNodeValue = LeafCount++;
+                    elements.ElementAt(i).leafNodeValue = LeafCount;
                     Follow.Add(follow);
                     Node<T> value = elements.ElementAt(i);
                     sets.Add(value);
+                    setsList.Add(value.Value.getValue());
+                    LeafCount++;
                 }
             }
 
@@ -337,7 +338,7 @@ namespace AnalizadorLexico.Classes
 
                 if (value.Equals("."))
                 {
-                    if (selected.Right.Nullable)
+                    if (selected.Right.Nullable && selected.Right != null)
                     {
                         for (int j = 0; j < selected.Left.Last.Count; j++)
                         {
@@ -353,7 +354,7 @@ namespace AnalizadorLexico.Classes
                             }
                         }
                     }
-                    else
+                    else 
                     {
                         selected.Last = selected.Right.Last;
                     }
@@ -465,7 +466,7 @@ namespace AnalizadorLexico.Classes
             return node;
         }
 
-        public List<List<string>> makeAutomaton(Node<T> node)
+        public Node<T> makeAutomaton(Node<T> node)
         {           
             transiciones.Add(cabeza.First);
 
@@ -521,8 +522,9 @@ namespace AnalizadorLexico.Classes
                     }
                 }
                 table.Add(result);
-            }
-            return table;
+                //automatonTable.Add(transiciones, table);
+            }            
+            return cabeza;
         }
 
         private int getPosition(List<List<int>> transition, List<int> follow)
@@ -551,9 +553,7 @@ namespace AnalizadorLexico.Classes
                 }
             }
             return result;
-        }
-
-       
+        }       
 
         public bool Limpiar()
         {
@@ -569,21 +569,7 @@ namespace AnalizadorLexico.Classes
 
                 return false;
             }
-        }
-
-        public Node<T> Search(Node<T> nodo, T value)
-        {
-            if (nodo == null)
-                return null;
-            else if (nodo.Value.CompareTo(value) == 0)
-                return nodo;
-
-            else if (nodo.Value.CompareTo(value) > 0)
-                Search(nodo.Left, value);
-            else if (nodo.Value.CompareTo(value) < 0)
-                Search(nodo.Right, value);
-            return nodo;
-        }
+        }      
 
         public IEnumerator<T> GetEnumerator()
         {

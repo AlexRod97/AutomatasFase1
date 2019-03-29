@@ -6,15 +6,10 @@ using System.Threading.Tasks;
 
 namespace AnalizadorLexico.Classes
 {
-   public class TreeDictionary: IComparable<TreeDictionary>
+    public class CharDictionary
     {
         private int key { get; set; }
-        string value { get; set; }      
-
-        public int CompareTo(TreeDictionary other)
-        {
-            return key.CompareTo(other.key);
-        }
+        char value { get; set; }       
 
         public int getKey()
         {
@@ -26,12 +21,12 @@ namespace AnalizadorLexico.Classes
             this.key = key;
         }
 
-        public string getValue()
+        public char getValue()
         {
             return value;
         }
 
-        public void setValue(string value)
+        public void setValue(char value)
         {
             this.value = value;
         }

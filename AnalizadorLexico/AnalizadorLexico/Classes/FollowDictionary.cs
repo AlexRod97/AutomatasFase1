@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AnalizadorLexico.Classes
 {
-    class FollowDictionary
+    public class FollowDictionary
     {
         int key { get; set; }
         List<int> values = new List<int>(); 

@@ -1,0 +1,18 @@
+SeTs
+	LETRA = 'A'..'Z'+'a'..'z'+'_'
+	DIGITO = '0'..'9'
+	CHARSET = CHR(32)..CHR(254)+CHR(16)
+TOKENS
+	TOKEN 1 = ('ABECEDARIO''CARRO''DALLAS'|'BOLD')*
+
+ACTIONS
+	RESERVADAS()
+	{	
+		18 = 'PROGRAM'
+		19 = 'INCLUDE'
+		20 = 'CONST'
+		21 = 'TYPE'
+		22 = 'VAR'
+	}
+
+ERROR = 54

@@ -3,89 +3,89 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace AnalizadorLexico.Classes
 {
     public class InputAnalizer
     {
-        public Dictionary<int, string> Analize(string input)
+        public List<string> Analize(List<string> input)
         {
             string operators = "|*+?^";
-            string comparators = "|^#";
-            StringBuilder result = new StringBuilder();
-            List<TreeDictionary> regularExpressionMap = new List<TreeDictionary>();
-            Dictionary<int, string> regularExpressionResult = new Dictionary<int, string>();
+            string comparators = "|^";
+            int count = 0; 
+            List<string> result = new List<string>();
 
-            int charCount = 0;
-
-            input += "#";
-
-            for (int i = 0; i < input.Length; i++)
+            for (int i = 0; i < input.Count; i++)
             {
-                char selectedCharacter1 =  Convert.ToChar(input.Substring(i,1)); 
+                string stringSelectedCharacter1 = input.ElementAt(i);
+                char selectedCharacter1 = Convert.ToChar(stringSelectedCharacter1.Substring(0, 1));
+                
 
-                if( i + 1 < input.Length)
-                {
-                    char selectedCharacter2 = Convert.ToChar(input.Substring(i + 1, 1));
-
-                    result.Append(selectedCharacter1);
-
+                if (i + 1 < input.Count)
+                {  
+                    string stringSelectedCharacter2 = input.ElementAt(i + 1);
+                    char selectedCharacter2 = Convert.ToChar(stringSelectedCharacter2.Substring(0, 1));
+                    result.Add(stringSelectedCharacter1);
                     //Validates if the character is not an operator or parentheses; if true adds a concat operator
-                    if(!selectedCharacter1.Equals('(') && !selectedCharacter2.Equals(')') && !operators.Contains(selectedCharacter2) 
+                    if (!selectedCharacter1.Equals('(') && !selectedCharacter2.Equals(')') && !operators.Contains(selectedCharacter2)
                         && !comparators.Contains(selectedCharacter1))
                     {
-                        result.Append(".");
-                    }                   
-                }               
-            }
-            char lastElement = Convert.ToChar(input.Substring(input.Length - 1, 1));
-            result.Append(lastElement);
-
-            string expression = result.ToString(); 
-
-            for (int i = 0; i < expression.Length; i++)
-            {
-                TreeDictionary tree = new TreeDictionary();
-                tree.setKey(charCount++);
-                tree.setValue(expression.Substring(i, 1));
-                regularExpressionMap.Add(tree);
-            }
-
-            for (int i = 0; i < expression.Length; i++)
-            {
-                string valueActual = regularExpressionMap.ElementAt(i).getValue();
-                int keyActual = regularExpressionMap.ElementAt(i).getKey();
-                
-                if(i -1 > 0)
-                {
-                    string valuePrev = regularExpressionMap.ElementAt(i - 1).getValue();
-                    int keyPrev = regularExpressionMap.ElementAt(i - 1).getKey();
-                    bool letter = Char.IsLetterOrDigit(Convert.ToChar(valuePrev));
-
-                    if ((valueActual.Equals("*") && letter) || (valueActual.Equals("+") && letter) || (valueActual.Equals("?") && letter) )
-                    {
-                        regularExpressionMap.ElementAt(i).setKey(keyPrev);
-                        regularExpressionMap.ElementAt(i - 1).setKey(keyActual);
-                    }
-
-                    if(i + 2 == regularExpressionMap.Count)
-                    {
-                        regularExpressionMap.ElementAt(i).setKey(int.MaxValue - 1);
-                    }
-
-                    if(valueActual.Equals("#"))
-                    {
-                        regularExpressionMap.ElementAt(i).setKey(int.MaxValue);
+                        result.Add(".");
                     }
                 }
             }
+            result.Add((input.ElementAt(input.Count - 1)));           
 
-            for (int i = 0; i < regularExpressionMap.Count; i++)
+            //Checks if the last element in the expression is a character or operator; if true adds terminal operator
+            /*
+            if (!operators.Contains(lastElement) && !comparators.Contains(lastElement))
             {
-                regularExpressionResult.Add(regularExpressionMap.ElementAt(i).getKey(), regularExpressionMap.ElementAt(i).getValue());
+                result.Append(".#");
+            }
+            else
+            {
+                result.Append("#");
+            }
+            */
+            return result;
+        }
+
+        public List<CharDictionary> convertToChar(List<string> input)
+        {
+            List<CharDictionary> result = new List<CharDictionary>();
+
+            for (int i = 0; i < input.Count; i++)
+            {
+                CharDictionary element = new CharDictionary();
+                element.setKey(i);
+                element.setValue(Convert.ToChar(input.ElementAt(i).Substring(0,1)));
+                result.Add(element);
             }
 
-            return regularExpressionResult;
+            return result;
+        }
+
+        public List<TreeDictionary> convertToTreeDictionary (List<CharDictionary> finalResult, List<string> baseExreg)
+        {
+            List<TreeDictionary> result = new List<TreeDictionary>();
+
+            for (int i = 0; i < finalResult.Count; i++)
+            {
+                TreeDictionary element = new TreeDictionary();
+                element.setKey(finalResult.ElementAt(i).getKey());
+                element.setValue(baseExreg.ElementAt(finalResult.ElementAt(i).getKey()));
+                result.Add(element);
+            }
+            TreeDictionary elementNum = new TreeDictionary();
+            elementNum.setKey(int.MaxValue-1);
+            elementNum.setValue("#");
+
+            TreeDictionary elementDot = new TreeDictionary();
+            elementDot.setKey(int.MaxValue);
+            elementDot.setValue(".");
+
+            return result;
         }
     }
 }
