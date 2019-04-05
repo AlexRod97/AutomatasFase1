@@ -19,6 +19,7 @@ namespace AnalizadorLexico.Classes
         public List<FollowDictionary> Follow = new List<FollowDictionary>();
         private List<Node<T>> sets = new List<Node<T>>();
         public List<string> setsList = new List<string>();
+        public List<string> nonRepeatedSets = new List<string>(); 
         public Dictionary<List<List<int>>, List<List<string>>> automatonTable = new Dictionary<List<List<int>>, List<List<string>>>();
         public List<List<string>> table = new List<List<string>>();
         private int LeafCount = 0;
@@ -139,8 +140,14 @@ namespace AnalizadorLexico.Classes
                     elements.ElementAt(i).leafNodeValue = LeafCount;
                     Follow.Add(follow);
                     Node<T> value = elements.ElementAt(i);
-                    sets.Add(value);
-                    setsList.Add(value.Value.getValue());
+                    string set = value.Value.getValue();
+                    // setsList.Add(set);
+                   
+                    if (!setsList.Contains(set))
+                    {
+                        sets.Add(value);
+                        setsList.Add(set);                       
+                    }
                     LeafCount++;
                 }
             }

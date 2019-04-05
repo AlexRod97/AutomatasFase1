@@ -172,14 +172,13 @@ namespace AnalizadorLexico
             for (int i = 0; i < sets.Count - 1; i++)
             {
                 dataGridView2.Columns[i + 1].HeaderCell.Value = sets.ElementAt(i);
-            }
-
-            List<string> temp = new List<string>(); 
+            }         
 
             for (int i = 0; i < transiciones.Count; i++)
             {
-                StringBuilder element = new StringBuilder(); 
-
+                StringBuilder element = new StringBuilder();
+                element.Append(abc.ElementAt(i).ToString());
+                element.Append(": ");
                 for (int j = 0; j < transiciones.ElementAt(i).Count; j++)
                 {
                     if(j + 1 < transiciones.ElementAt(i).Count)
@@ -197,7 +196,7 @@ namespace AnalizadorLexico
 
             for (int i = 0; i < tabla.Count; i++)
             {
-                for (int j = 0; j < tabla.ElementAt(i).Count; j++)
+                for (int j = 0; j < tabla.ElementAt(i).Count - 1; j++)
                 {
                     char number = Convert.ToChar(tabla.ElementAt(i).ElementAt(j)); 
 
