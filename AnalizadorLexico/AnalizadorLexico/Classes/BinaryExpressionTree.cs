@@ -514,7 +514,7 @@ namespace AnalizadorLexico.Classes
                 List<string> result = new List<string>();
                 int cont = 0; 
 
-                for (int j = 0; j < sets.Count-1; j++)
+                for (int j = 0; j < sets.Count; j++)
                 { 
                     if (internalTransition.Contains(j + 1))
                     {
